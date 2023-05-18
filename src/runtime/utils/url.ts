@@ -9,7 +9,10 @@ const getApiURL = () => {
   return joinURL(origin, useRuntimeConfig().public.auth.basePath)
 }
 
-export const getRequestURL = (includePath = true) => _getURL(useRequestEvent()?.node.req, includePath)
+export const getRequestURL = (includePath = true) => {
+  const origin = _getURL(useRequestEvent()?.node.req, false)
+  return includePath ? joinURL(origin, useRuntimeConfig().app.baseURL || '/', useRequestEvent()?.node.req.url || '') : origin
+}
 export const joinPathToApiURL = (path: string) => joinURL(getApiURL(), path)
 
 /**

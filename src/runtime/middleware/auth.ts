@@ -1,3 +1,4 @@
+import { joinURL } from 'ufo'
 import { navigateTo, defineNuxtRouteMiddleware, useRuntimeConfig } from '#app'
 import useAuth from '../composables/useAuth'
 import { navigateToAuthPages, determineCallbackUrl } from '../utils/url'
@@ -57,6 +58,6 @@ export default defineNuxtRouteMiddleware((to) => {
     }
   }
 
-  const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => to.path) }
+  const signInOptions: Parameters<typeof signIn>[1] = { error: 'SessionRequired', callbackUrl: determineCallbackUrl(authConfig, () => joinURL(useRuntimeConfig().app.baseURL, to.path)) }
   return signIn(undefined, signInOptions) as ReturnType<typeof navigateToAuthPages>
 })
