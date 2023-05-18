@@ -2,7 +2,7 @@ import type { AppProvider, BuiltInProviderType } from 'next-auth/providers'
 import { defu } from 'defu'
 import { readonly } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
-import { appendHeader } from 'h3'
+import { appendHeader, appendResponseHeader, splitCookiesString } from 'h3'
 import type { NuxtApp } from '#app'
 import { callWithNuxt } from '#app'
 import { getRequestURL, joinPathToApiURL, navigateToAuthPages, determineCallbackUrl } from '../utils/url'
@@ -161,7 +161,18 @@ const signIn = async (
     method: 'post',
     params: authorizationParams,
     headers,
-    body
+    body,
+    onResponse({ response }) {
+      // Set the cookies needed for authentication like __Secure-next-auth.state
+      if (process.server) {
+        const cookies = splitCookiesString(response.headers.get('set-cookie') || '')
+        if (cookies && nuxt.ssrContext) {
+          for (const cookie of cookies) {
+            appendResponseHeader(nuxt.ssrContext.event, 'set-cookie', cookie)
+          }
+        }
+      }
+    }
   }).catch<Record<string, any>>((error: { data: any }) => error.data)
   const data = await callWithNuxt(nuxt, fetchSignIn)
 
