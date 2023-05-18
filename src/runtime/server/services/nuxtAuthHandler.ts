@@ -184,6 +184,11 @@ export const NuxtAuthHandler = (nuxtAuthOptions?: AuthOptions) => {
   const handler = eventHandler(async (event: H3Event) => {
     const { res } = event.node
 
+    // 0. convert request body to string if it is an URLSearchParams object, 
+    // as calling $fetch in server side still passes the body as an URLSearchParams object
+    if (event.node.req.body && event.node.req.body instanceof URLSearchParams) {
+      event.node.req.body = event.node.req.body.toString()
+    }
     // 1. Assemble and perform request to the NextAuth.js auth handler
     const nextRequest = await getInternalNextAuthRequestData(event)
 
